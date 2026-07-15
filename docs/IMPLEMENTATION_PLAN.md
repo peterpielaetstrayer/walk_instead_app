@@ -61,3 +61,7 @@ src/
 ## Done when
 
 All §30 completion criteria pass: onboarding → walk → check-in → history, timer survives refresh, no duplicate actives, local export/delete, offline central flow, typecheck/lint/test/build green.
+
+## Status (v0.1)
+
+Implemented and verified locally: typecheck, lint, unit tests (15), production webpack build, route smoke (200s).
