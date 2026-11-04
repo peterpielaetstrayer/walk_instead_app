@@ -45,3 +45,17 @@ CI runs static verification via GitHub Actions when this draft PR opens. A passi
 A — Quiet Editorial is the working design only, informed by comparison with B — Grounded Wayfinding and C — Focused Instrument in the Figma review board. Typography, copy, secondary-action placement and contrast need real-user critique. No universal "optimal" design is claimed.
 
 **No release authorization.** This draft is for discussion, inspection and iterative evaluation.
+
+## Initial human feedback and open QA blocker — November 4, 2026
+
+A first reviewer found the interface appropriately simple and straightforward but reported **loading errors in some pathways**. The exact paths, error strings and device/browser are not yet known, so no cause or fix is verified.
+
+Read-only inspection confirmed:
+- Vercel preview commit `df58d61` was **READY**, and the corresponding GitHub Actions workflow passed lint, typecheck, tests and production build.
+- Vercel Authentication protection is enabled for preview deployments (`all_except_custom_domains`); this may affect access, but is **not** proof that it caused the pathway errors.
+- No server-side runtime error clusters or recent runtime log records were returned for the inspected period. **Browser-side errors may not be captured by those server logs.**
+- This is a PWA using a service worker. Stale cached assets across builds are a plausible issue to investigate, not a confirmed diagnosis.
+
+**Open QA blocker (do not close or merge yet):** Capture exactly which route or interaction failed, what appeared on screen, browser/OS, and whether a fresh browser/private window reproduces. Test both direct deep links and in-app navigation for `/`, `/walk`, `/check-in`, `/choice`, `/reflection`, `/history`, `/history/[id]` and `/settings`. Verify behavior with and without existing saved walk data, including no completed check-in and early finishing. Validate session and PWA cache behavior before changing service-worker configuration. Keep the preview protected while testing and avoid using real sensitive notes during debugging.
+
+**Design interpretation:** The minimal interface is an intended feature, but stability, predictable transitions, accessibility and high-quality typography/spatial rhythm remain necessary for a polished public product. Do not respond to the feedback by adding dashboard clutter or decorative features.
