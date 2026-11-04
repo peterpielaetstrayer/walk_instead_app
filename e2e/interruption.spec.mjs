@@ -8,7 +8,7 @@ test("save a thought and finish early without getting stuck in a loading screen"
   await expect(page.getByRole("heading", { name: /You don't have to decide yet/i })).toBeVisible();
   await page.getByRole("button", { name: "Begin a walk now" }).click();
   await expect(page).toHaveURL(/\/walk$/);
-  await expect(page.getByText("The pause has begun.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "The pause has begun." })).toBeVisible();
 
   // The note dialog's focus must survive changes to the text and timer.
   await page.getByRole("button", { name: "Save a thought" }).click();
@@ -51,7 +51,7 @@ test("refreshing during an active walk resumes the existing timer", async ({ pag
   await page.getByRole("button", { name: "Begin a walk now" }).click();
   await expect(page).toHaveURL(/\/walk$/);
   await page.reload();
-  await expect(page.getByText("The pause has begun.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "The pause has begun." })).toBeVisible();
   await page.goto("/");
   await expect(page.getByRole("button", { name: "Return to your walk" })).toBeVisible();
   expect(pageErrors).toEqual([]);
