@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Footprints } from "lucide-react";
 import { HydrationGate } from "@/components/HydrationGate";
 import { ScreenHeader } from "@/components/ScreenHeader";
-import { PrimaryButton, TextLink } from "@/components/Buttons";
+import { PrimaryButton } from "@/components/Buttons";
 import { SafetyNote, Screen } from "@/components/ui";
 import { useWalkStore } from "@/lib/walk-store";
 
@@ -19,28 +18,11 @@ export default function HomePage() {
 
 function HomeContent() {
   const router = useRouter();
-  const { data, startWalk, activeWalk, storageError } = useWalkStore();
+  const { activeWalk, startWalk, storageError } = useWalkStore();
 
-  useEffect(() => {
-    if (!data.settings.onboardingCompleted) {
-      router.replace("/onboarding");
-    }
-  }, [data.settings.onboardingCompleted, router]);
-
-  if (!data.settings.onboardingCompleted) {
-    return (
-      <div className="flex flex-1 items-center justify-center px-6">
-        <p className="text-sm text-[var(--color-text-muted)]">Loading…</p>
-      </div>
-    );
-  }
-
-  const handleWalk = () => {
-    if (activeWalk) {
-      router.push("/walk");
-      return;
-    }
-    startWalk();
+  // No onboarding, context picker, account or route choice can block a first walk.
+  const begin = () => {
+    if (!activeWalk) startWalk();
     router.push("/walk");
   };
 
@@ -48,44 +30,57 @@ function HomeContent() {
     <>
       <ScreenHeader title="" menuHref="/settings" />
       <Screen className="justify-between">
-        <div className="flex flex-1 flex-col justify-center pt-4 pb-8">
-          <p className="text-[2rem] font-bold tracking-tight leading-none">
-            Walk Instead
+        <div className="flex flex-1 flex-col justify-center pt-10 pb-12">
+          <p className="text-[11px] font-semibold tracking-[0.19em] text-[var(--color-text-secondary)]">
+            WALK INSTEAD
           </p>
-          <p className="mt-5 text-lg leading-snug text-[var(--color-text-secondary)] max-w-[18rem]">
-            You do not have to decide right now.
-            <br />
-            Walk first.
+          <h1 className="editorial-heading mt-12 max-w-sm text-[clamp(2.65rem,10vw,3.3rem)] leading-[1.12] tracking-[-0.025em]">
+            You don&apos;t have to decide yet.
+          </h1>
+          <p className="mt-6 max-w-xs text-[17px] leading-[1.6] text-[var(--color-text-secondary)]">
+            Begin with a walk. Return when you&apos;re ready.
           </p>
 
-          {storageError && (
-            <p
-              className="mt-4 text-sm text-[var(--color-text-secondary)]"
-              role="status"
+          <div className="mt-12">
+            <PrimaryButton
+              onClick={begin}
+              className="min-h-16 text-[17px]"
+              aria-label={activeWalk ? "Return to your walk" : "Begin a walk now"}
             >
+              <Footprints aria-hidden className="h-5 w-5" />
+              {activeWalk ? "Return to my walk" : "Begin walking"}
+            </PrimaryButton>
+            <p className="mt-3 text-center text-[13px] text-[var(--color-text-muted)]">
+              10 minutes · No route required
+            </p>
+          </div>
+
+          {storageError && (
+            <p className="mt-5 text-sm text-[var(--color-text-secondary)]" role="status">
               {storageError}
             </p>
           )}
-
-          <div className="mt-10">
-            <PrimaryButton
-              onClick={handleWalk}
-              className="min-h-16 text-lg tracking-wide"
-              aria-label="Walk Instead"
-            >
-              <Footprints className="h-5 w-5" aria-hidden />
-              WALK INSTEAD
-            </PrimaryButton>
-          </div>
-
-          <div className="mt-4 flex justify-center">
-            <TextLink onClick={() => router.push("/history")}>
-              See my walks
-            </TextLink>
-          </div>
         </div>
 
-        <SafetyNote className="mb-2" />
+        <div className="border-t border-[var(--color-border)] pt-4 pb-2">
+          <div className="flex items-center justify-between gap-4">
+            <button
+              type="button"
+              onClick={() => router.push("/history")}
+              className="min-h-11 text-sm font-medium underline-offset-4 hover:underline"
+            >
+              See my walks
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push("/settings")}
+              className="min-h-11 text-sm font-medium underline-offset-4 hover:underline"
+            >
+              Personalize later
+            </button>
+          </div>
+          <SafetyNote className="mt-2" />
+        </div>
       </Screen>
     </>
   );
