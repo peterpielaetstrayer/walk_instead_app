@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import { AppShell } from "@/components/AppShell";
+import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { Providers } from "@/components/Providers";
 import "./globals.css";
 
@@ -51,6 +52,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${fraunces.variable} h-full`}>
       <body className="min-h-full font-sans antialiased">
+        <ServiceWorkerRegistration />
         <Providers>
           <AppShell>{children}</AppShell>
         </Providers>
