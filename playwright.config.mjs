@@ -13,6 +13,8 @@ export default defineConfig({
     // Verify the app's client navigation without a previously installed PWA
     // injecting cached assets. Offline/cache behavior needs a separate test.
     serviceWorkers: "block",
+    screenshot: "only-on-failure",
+    trace: "retain-on-failure",
   },
   webServer: {
     command: "npm run start -- -p 3000",
