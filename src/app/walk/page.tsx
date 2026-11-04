@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { HydrationGate } from "@/components/HydrationGate";
 import { ScreenHeader } from "@/components/ScreenHeader";
@@ -11,32 +11,7 @@ import { Screen } from "@/components/ui";
 import { formatStaleWalkLabel } from "@/lib/format";
 import { getRecoveryAction, isTargetReached } from "@/lib/walk-logic";
 import { useWalkStore } from "@/lib/walk-store";
-
-function subscribeClock(cb: () => void) {
-  const id = window.setInterval(cb, 1000);
-  const onVis = () => {
-    if (document.visibilityState === "visible") cb();
-  };
-  document.addEventListener("visibilitychange", onVis);
-  window.addEventListener("focus", cb);
-  return () => {
-    window.clearInterval(id);
-    document.removeEventListener("visibilitychange", onVis);
-    window.removeEventListener("focus", cb);
-  };
-}
-
-function getClockSnapshot() {
-  return Date.now();
-}
-
-function getClockServerSnapshot() {
-  return 0;
-}
-
-function useClock() {
-  return useSyncExternalStore(subscribeClock, getClockSnapshot, getClockServerSnapshot);
-}
+import { useClock } from "@/lib/useClock";
 
 export default function WalkPage() {
   return (
