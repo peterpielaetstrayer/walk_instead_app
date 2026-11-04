@@ -27,11 +27,11 @@ function HistoryContent() {
   const summary = calculateHistorySummary(data.walks);
 
   const feelingLine = summary.hasEnoughForFeelingSummary
-    ? `You felt better after ${summary.betterCount} of ${summary.completedWithState} walks.`
+    ? `You reported feeling better on ${summary.betterCount} of ${summary.completedWithState} walks with a check-in.`
     : undefined;
 
   const pauseLine = summary.hasEnoughForPauseSummary
-    ? `Your walks created a useful pause ${summary.usefulPauseCount} ${summary.usefulPauseCount === 1 ? "time" : "times"}.`
+    ? `On ${summary.usefulPauseCount} of ${summary.completedWithPauseRating} rated walks, you described the pause as useful.`
     : undefined;
 
   const timeLine =

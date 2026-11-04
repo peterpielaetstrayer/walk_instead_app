@@ -7,7 +7,7 @@ import { ScreenHeader } from "@/components/ScreenHeader";
 import { PrimaryButton, SecondaryButton } from "@/components/Buttons";
 import { ConfirmationDialog } from "@/components/Dialog";
 import { Card, Screen } from "@/components/ui";
-import { INTENTION_PRESETS, type IntentionPreset } from "@/lib/types";
+import { DURATION_PRESETS_SECONDS, INTENTION_PRESETS, type IntentionPreset } from "@/lib/types";
 import { buildIntentionStatement } from "@/lib/walk-logic";
 import { useWalkStore } from "@/lib/walk-store";
 
@@ -54,6 +54,39 @@ function SettingsContent() {
     <>
       <ScreenHeader title="Settings" backHref="/" />
       <Screen className="gap-8">
+        <section>
+          <fieldset>
+            <legend className="text-lg font-semibold">Default walk length</legend>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+              Choose this while you&apos;re calm. A walk already in progress keeps
+              its original time; you can still finish early or keep going.
+            </p>
+            <div className="mt-4 grid grid-cols-4 gap-2">
+              {DURATION_PRESETS_SECONDS.map((seconds) => (
+                <label key={seconds} className="cursor-pointer">
+                  <input
+                    className="peer sr-only"
+                    type="radio"
+                    name="default-walk-duration"
+                    value={seconds}
+                    checked={data.settings.defaultDurationSeconds === seconds}
+                    onChange={() => updateSettings({ defaultDurationSeconds: seconds })}
+                  />
+                  <span className="flex min-h-12 items-center justify-center rounded-[var(--radius-md)] border border-[var(--color-control-border)] bg-[var(--color-surface)] text-sm font-medium peer-checked:border-[var(--color-primary)] peer-checked:bg-[var(--color-primary-subtle)] peer-checked:text-[var(--color-primary)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--color-primary)]">
+                    {seconds / 60} min
+                  </span>
+                </label>
+              ))}
+            </div>
+            {!DURATION_PRESETS_SECONDS.includes(data.settings.defaultDurationSeconds) && (
+              <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
+                Current custom default: {Math.round(data.settings.defaultDurationSeconds / 60)} minutes.
+                Choose a standard option above to change it.
+              </p>
+            )}
+          </fieldset>
+        </section>
+
         <section>
           <h2 className="text-lg font-semibold">My intention</h2>
           <Card className="mt-3">
@@ -106,7 +139,7 @@ function SettingsContent() {
         </section>
 
         <p className="text-center text-xs text-[var(--color-text-muted)] pb-4">
-          Walk Instead v0.1 · Walk first. Decide afterward.
+          Walk Instead v0.2 design draft · Walk first. Decide afterward.
         </p>
       </Screen>
 
@@ -149,7 +182,7 @@ function SettingsContent() {
                 className={`min-h-11 w-full rounded-[var(--radius-md)] border px-3 py-2 text-left text-sm capitalize ${
                   selected
                     ? "border-[var(--color-primary)] bg-[var(--color-primary-subtle)]"
-                    : "border-[var(--color-border)]"
+                    : "border-[var(--color-control-border)]"
                 }`}
               >
                 {option}
@@ -162,7 +195,7 @@ function SettingsContent() {
             type="text"
             value={customText}
             onChange={(e) => setCustomText(e.target.value)}
-            className="mt-3 w-full min-h-11 rounded-[var(--radius-md)] border border-[var(--color-border)] px-3 text-sm"
+            className="mt-3 w-full min-h-11 rounded-[var(--radius-md)] border border-[var(--color-control-border)] px-3 text-sm"
             placeholder="Your words"
             maxLength={80}
             aria-label="Custom intention"
@@ -180,7 +213,7 @@ function SettingsContent() {
               onClick={() => {
                 deleteAllData();
                 setConfirmDelete(false);
-                router.replace("/onboarding");
+                router.replace("/");
               }}
             >
               Delete everything
@@ -192,7 +225,7 @@ function SettingsContent() {
         }
       >
         This clears walks, notes, and settings on this device and returns you
-        to first-use onboarding. It cannot be undone.
+        to the home screen. It cannot be undone.
       </ConfirmationDialog>
     </>
   );

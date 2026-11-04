@@ -1,107 +1,47 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useClock } from "@/lib/useClock";
 import { formatTimerDisplay } from "@/lib/format";
-import {
-  getDisplaySeconds,
-  getTimerProgress,
-  isTargetReached,
-} from "@/lib/walk-logic";
-
-function subscribeTick(cb: () => void) {
-  const id = window.setInterval(cb, 250);
-  const onVis = () => {
-    if (document.visibilityState === "visible") cb();
-  };
-  document.addEventListener("visibilitychange", onVis);
-  window.addEventListener("focus", cb);
-  return () => {
-    window.clearInterval(id);
-    document.removeEventListener("visibilitychange", onVis);
-    window.removeEventListener("focus", cb);
-  };
-}
-
-function getNow() {
-  return Date.now();
-}
-
-function getServerNow() {
-  return 0;
-}
+import { getDisplaySeconds, getTimerProgress } from "@/lib/walk-logic";
 
 export function ProgressTimer({
   startedAt,
   targetDurationSeconds,
-  size = 240,
 }: {
   startedAt: string;
   targetDurationSeconds: number;
-  size?: number;
 }) {
-  const now = useSyncExternalStore(subscribeTick, getNow, getServerNow);
-
+  const now = useClock();
   const display = getDisplaySeconds(startedAt, targetDurationSeconds, now);
   const progress = getTimerProgress(startedAt, targetDurationSeconds, now);
-  const complete = isTargetReached(startedAt, targetDurationSeconds, now);
-  const stroke = 8;
-  const radius = (size - stroke) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference * (1 - progress);
-
-  const statusLabel = complete
-    ? display.mode === "overtime"
-      ? `Elapsed ${formatTimerDisplay(display.seconds)}`
-      : "Ten minutes complete"
-    : `${formatTimerDisplay(display.seconds)} remaining`;
+  const seconds = formatTimerDisplay(display.seconds);
+  const remaining = display.mode !== "overtime";
+  const progressPercent = Math.round(progress * 100);
 
   return (
-    <div
-      className="relative flex items-center justify-center"
-      style={{ width: size, height: size }}
-    >
-      <svg
-        width={size}
-        height={size}
-        viewBox={`0 0 ${size} ${size}`}
-        className="-rotate-90"
-        aria-hidden
+    <div className="w-full" aria-label="Walk timer">
+      <p className="editorial-heading text-center text-[clamp(4.5rem,20vw,6rem)] leading-none tabular-nums tracking-[-0.03em]" aria-hidden>
+        {seconds}
+      </p>
+      <p className="mt-3 text-center text-[13px] text-[var(--color-text-muted)]" aria-hidden>
+        {remaining ? "remaining" : "elapsed"}
+      </p>
+      <div
+        className="mt-8 h-[5px] w-full overflow-hidden rounded-full bg-[var(--color-border)]"
+        role="progressbar"
+        aria-label="Walk progress"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={progressPercent}
       >
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="var(--color-border)"
-          strokeWidth={stroke}
+        <div
+          className="h-full rounded-full bg-[var(--color-primary)] motion-reduce:transition-none transition-[width] duration-500"
+          style={{ width: `${progressPercent}%` }}
         />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="var(--color-primary)"
-          strokeWidth={stroke}
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          className="transition-[stroke-dashoffset] duration-300 ease-linear motion-reduce:transition-none"
-        />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
-        <p
-          className="text-[3.25rem] leading-none font-bold tracking-tight tabular-nums"
-          aria-hidden
-        >
-          {formatTimerDisplay(display.seconds)}
-        </p>
-        <p className="mt-2 text-sm text-[var(--color-text-muted)]" aria-hidden>
-          {display.mode === "overtime" ? "elapsed" : "remaining"}
-        </p>
       </div>
-      <span className="sr-only" aria-live="off">
-        Timer: {statusLabel}
-      </span>
+      <p className="sr-only" aria-live="off">
+        {remaining ? `${seconds} remaining` : `${seconds} elapsed`}
+      </p>
     </div>
   );
 }

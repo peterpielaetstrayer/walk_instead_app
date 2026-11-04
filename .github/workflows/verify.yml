@@ -1,0 +1,58 @@
+name: Walk Instead — Draft verification
+
+on:
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Repeated draft commits supersede previous validation requests.
+concurrency:
+  group: walk-instead-draft-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Static checks and browser flows
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      # @playwright/test is a pinned dev dependency installed by npm ci.
+      - name: Install Chromium for browser smoke tests
+        run: npx playwright install --with-deps chromium
+      - name: Browser flow smoke tests
+        run: npx playwright test --config playwright.config.mjs
+      - name: Upload browser failure evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: walk-instead-browser-diagnostics
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  security:
+    name: Production dependency advisory check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Audit production dependencies for high and critical advisories
+        run: npm audit --omit=dev --audit-level=high

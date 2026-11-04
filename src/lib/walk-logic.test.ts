@@ -165,8 +165,56 @@ describe("history summaries", () => {
     expect(summary.betterCount).toBe(1);
     expect(summary.completedWithState).toBe(2);
     expect(summary.usefulPauseCount).toBe(2);
+    expect(summary.completedWithPauseRating).toBe(2);
     expect(summary.totalWalkingSeconds).toBe(1500);
     expect(summary.hasEnoughForFeelingSummary).toBe(true);
+  });
+
+  it("preserves a completed pause with no feelings or useful-pause rating", () => {
+    const completed = endWalkEvent(
+      createWalkEvent({
+        id: "no-rating",
+        startedAt: "2026-07-15T12:00:00.000Z",
+        targetDurationSeconds: 600,
+      }),
+      "2026-07-15T12:05:00.000Z",
+    );
+    const parsed = parseAppData({
+      version: 1,
+      settings: DEFAULT_APP_DATA.settings,
+      walks: [completed],
+    });
+    expect(parsed.ok).toBe(true);
+    expect(parsed.data.walks[0].status).toBe("completed");
+    expect(parsed.data.walks[0].stateAfter).toBeUndefined();
+    expect(parsed.data.walks[0].actualDurationSeconds).toBe(300);
+    const summary = calculateHistorySummary(parsed.data.walks);
+    expect(summary.momentsInterrupted).toBe(1);
+    expect(summary.completedWithState).toBe(0);
+    expect(summary.hasEnoughForFeelingSummary).toBe(false);
+  });
+
+  it("does not infer usefulness when users skip the optional pause rating", () => {
+    const walks: WalkEvent[] = [
+      walk({ id: "a", startedAt: "2026-01-01T10:00:00.000Z" }),
+      walk({ id: "b", startedAt: "2026-01-02T10:00:00.000Z", usefulPause: "yes" }),
+      walk({ id: "c", startedAt: "2026-01-03T10:00:00.000Z" }),
+    ];
+    const summary = calculateHistorySummary(walks);
+    expect(summary.momentsInterrupted).toBe(3);
+    expect(summary.completedWithPauseRating).toBe(1);
+    expect(summary.usefulPauseCount).toBe(1);
+    expect(summary.hasEnoughForPauseSummary).toBe(false);
+  });
+
+  it("includes a negative rating in the response denominator", () => {
+    const summary = calculateHistorySummary([
+      walk({ id: "a", startedAt: "2026-01-01T10:00:00.000Z", usefulPause: "no" }),
+      walk({ id: "b", startedAt: "2026-01-02T10:00:00.000Z", usefulPause: "somewhat" }),
+    ]);
+    expect(summary.completedWithPauseRating).toBe(2);
+    expect(summary.usefulPauseCount).toBe(1);
+    expect(summary.hasEnoughForPauseSummary).toBe(true);
   });
 
   it("handles empty history carefully", () => {
@@ -192,6 +240,41 @@ describe("history summaries", () => {
     const a = walk({ id: "a", startedAt: "2026-01-01T10:00:00.000Z" });
     const b = walk({ id: "b", startedAt: "2026-01-03T10:00:00.000Z" });
     expect(sortWalksRecentFirst([a, b]).map((w) => w.id)).toEqual(["b", "a"]);
+  });
+});
+
+describe("duration presets and safe persistence", () => {
+  it("preserves an existing walk duration independently of later setting changes", () => {
+    const first = createWalkEvent({
+      id: "dur-5",
+      startedAt: "2026-07-15T12:00:00.000Z",
+      targetDurationSeconds: 300,
+    });
+    const parsed = parseAppData({
+      ...DEFAULT_APP_DATA,
+      settings: { ...DEFAULT_APP_DATA.settings, defaultDurationSeconds: 1200 },
+      walks: [first],
+    });
+    expect(parsed.ok).toBe(true);
+    expect(parsed.data.settings.defaultDurationSeconds).toBe(1200);
+    expect(parsed.data.walks[0].targetDurationSeconds).toBe(300);
+    expect(getDisplaySeconds(first.startedAt, 300, Date.parse(first.startedAt) + 120_000))
+      .toEqual({ mode: "countdown", seconds: 180 });
+  });
+
+  it("rejects non-finite and impossible default durations while retaining other settings", () => {
+    for (const bad of [0, -1, 0.5, Infinity, 86400]) {
+      const parsed = parseAppData({
+        ...DEFAULT_APP_DATA,
+        settings: {
+          ...DEFAULT_APP_DATA.settings,
+          onboardingCompleted: true,
+          defaultDurationSeconds: bad,
+        },
+      });
+      expect(parsed.data.settings.defaultDurationSeconds).toBe(600);
+      expect(parsed.data.settings.onboardingCompleted).toBe(true);
+    }
   });
 });
 

@@ -3,6 +3,44 @@
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import { X } from "lucide-react";
 
+/** Keep keyboard focus within the active modal. aria-modal alone does not trap focus. */
+function handleDialogKey(
+  event: KeyboardEvent,
+  panel: HTMLDivElement | null,
+  close: () => void,
+) {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    close();
+    return;
+  }
+  if (event.key !== "Tab" || !panel) return;
+
+  const focusables = Array.from(
+    panel.querySelectorAll<HTMLElement>(
+      'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])',
+    ),
+  ).filter((element) => !element.hidden && element.getAttribute("aria-hidden") !== "true");
+
+  if (focusables.length === 0) {
+    event.preventDefault();
+    panel.focus();
+    return;
+  }
+
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+  const active = document.activeElement;
+
+  if (event.shiftKey && (active === first || !panel.contains(active))) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && (active === last || !panel.contains(active))) {
+    event.preventDefault();
+    first.focus();
+  }
+}
+
 export function ConfirmationDialog({
   open,
   title,
@@ -18,20 +56,26 @@ export function ConfirmationDialog({
 }) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef(onClose);
+
+  // Parents may pass a new callback every time the timer or text field updates.
+  // Keep the latest callback without resetting the focus effect on each render.
+  useEffect(() => {
+    closeRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!open) return;
     const previous = document.activeElement as HTMLElement | null;
     panelRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
+    const onKey = (e: KeyboardEvent) =>
+      handleDialogKey(e, panelRef.current, () => closeRef.current());
     document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("keydown", onKey);
       previous?.focus();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 
@@ -86,20 +130,26 @@ export function BottomSheet({
 }) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef(onClose);
+
+  // Parents may pass a new callback every time the timer or text field updates.
+  // Keep the latest callback without resetting the focus effect on each render.
+  useEffect(() => {
+    closeRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!open) return;
     const previous = document.activeElement as HTMLElement | null;
     panelRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
+    const onKey = (e: KeyboardEvent) =>
+      handleDialogKey(e, panelRef.current, () => closeRef.current());
     document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("keydown", onKey);
       previous?.focus();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 
@@ -128,7 +178,7 @@ export function BottomSheet({
             type="button"
             onClick={onClose}
             className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-sm)] hover:bg-[var(--color-bg)]"
-            aria-label="Close"
+            aria-label="Close dialog"
           >
             <X className="h-5 w-5" aria-hidden />
           </button>

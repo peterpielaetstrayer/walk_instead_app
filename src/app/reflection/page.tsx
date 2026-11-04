@@ -79,18 +79,18 @@ function ReflectionContent() {
   const save = () => {
     updateWalk(walk.id, { note: note.trim() || undefined });
     clearDraft();
-    router.push("/history");
+    router.push(`/choice?id=${encodeURIComponent(walk.id)}`);
   };
 
   const skip = () => {
     clearDraft();
-    router.push("/");
+    router.push(`/choice?id=${encodeURIComponent(walk.id)}`);
   };
 
   return (
     <>
       <ScreenHeader
-        backHref={`/check-in?id=${walk.id}`}
+        backHref={`/choice?id=${encodeURIComponent(walk.id)}`}
         trailing={<span className="w-11" />}
       />
       <Screen>
@@ -105,7 +105,7 @@ function ReflectionContent() {
             onChange={(e) => updateNote(e.target.value)}
             placeholder="Type anything you want to remember…"
             rows={8}
-            className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-[15px] leading-relaxed resize-y min-h-40"
+            className="w-full rounded-[var(--radius-md)] border border-[var(--color-control-border)] bg-[var(--color-surface)] px-4 py-3 text-[15px] leading-relaxed resize-y min-h-40"
           />
         </label>
         <div className="mt-6 flex flex-col gap-2">
