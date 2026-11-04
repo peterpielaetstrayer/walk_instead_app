@@ -169,6 +169,30 @@ describe("history summaries", () => {
     expect(summary.hasEnoughForFeelingSummary).toBe(true);
   });
 
+  it("preserves a completed pause with no feelings or useful-pause rating", () => {
+    const completed = endWalkEvent(
+      createWalkEvent({
+        id: "no-rating",
+        startedAt: "2026-07-15T12:00:00.000Z",
+        targetDurationSeconds: 600,
+      }),
+      "2026-07-15T12:05:00.000Z",
+    );
+    const parsed = parseAppData({
+      version: 1,
+      settings: DEFAULT_APP_DATA.settings,
+      walks: [completed],
+    });
+    expect(parsed.ok).toBe(true);
+    expect(parsed.data.walks[0].status).toBe("completed");
+    expect(parsed.data.walks[0].stateAfter).toBeUndefined();
+    expect(parsed.data.walks[0].actualDurationSeconds).toBe(300);
+    const summary = calculateHistorySummary(parsed.data.walks);
+    expect(summary.momentsInterrupted).toBe(1);
+    expect(summary.completedWithState).toBe(0);
+    expect(summary.hasEnoughForFeelingSummary).toBe(false);
+  });
+
   it("handles empty history carefully", () => {
     const summary = calculateHistorySummary([]);
     expect(summary.momentsInterrupted).toBe(0);
