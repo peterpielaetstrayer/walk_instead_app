@@ -178,7 +178,7 @@ export function BottomSheet({
             type="button"
             onClick={onClose}
             className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-sm)] hover:bg-[var(--color-bg)]"
-            aria-label="Close"
+            aria-label="Close dialog"
           >
             <X className="h-5 w-5" aria-hidden />
           </button>
