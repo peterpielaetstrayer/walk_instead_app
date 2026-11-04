@@ -59,3 +59,14 @@ Read-only inspection confirmed:
 **Open QA blocker (do not close or merge yet):** Capture exactly which route or interaction failed, what appeared on screen, browser/OS, and whether a fresh browser/private window reproduces. Test both direct deep links and in-app navigation for `/`, `/walk`, `/check-in`, `/choice`, `/reflection`, `/history`, `/history/[id]` and `/settings`. Verify behavior with and without existing saved walk data, including no completed check-in and early finishing. Validate session and PWA cache behavior before changing service-worker configuration. Keep the preview protected while testing and avoid using real sensitive notes during debugging.
 
 **Design interpretation:** The minimal interface is an intended feature, but stability, predictable transitions, accessibility and high-quality typography/spatial rhythm remain necessary for a polished public product. Do not respond to the feedback by adding dashboard clutter or decorative features.
+
+## November 4 — targeted stability follow-up for user-reported pathways
+
+Peter recalled the loading problems most likely occurred during **Save a thought** and **Finish early** in the v0.2 preview. This is not yet an exact, independently reproduced browser error trace.
+
+**Code issues identified and corrected on the draft branch:**
+- The common `BottomSheet` and `ConfirmationDialog` had an inline `onClose` in their focus-effect dependency array. Because the live timer and typed note rerendered the parent frequently, this repeatedly tore down/reinitialized dialog focus (potentially knocking focus out of the note field). The effect now remains attached while open, using the latest close callback from a ref.
+- Both live-walk clock readers used `useSyncExternalStore` with raw `Date.now()` snapshots, which are not stable across React snapshot reads. They now use one-second state updates and refresh on focus/visibility changes while still computing progress from the persisted start timestamp.
+- Added a jsdom dialog-focus regression test and Playwright browser smoke flows covering start → note → save → finish early → skip check-in → intentional choice → history, plus reload/resume. The Playwright test intentionally blocks service workers so app navigation is independently diagnosed from PWA cache behavior. Offline/service-worker QA remains separate.
+
+**Status:** Fixes committed, but not to be claimed as confirmed resolution until green tests and a real-device repeat. Keep PR draft and maintain the loading issue as an open QA gate if phone failures persist. No production merge or manual deployment was performed.
