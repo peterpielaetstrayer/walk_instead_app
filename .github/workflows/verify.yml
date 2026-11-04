@@ -29,8 +29,7 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
-      - name: Install pinned browser test runner
-        run: npm install --no-save --package-lock=false @playwright/test@1.56.1
+      # @playwright/test is a pinned dev dependency installed by npm ci.
       - name: Install Chromium for browser smoke tests
         run: npx playwright install --with-deps chromium
       - name: Browser flow smoke tests
