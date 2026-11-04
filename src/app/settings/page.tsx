@@ -106,7 +106,7 @@ function SettingsContent() {
         </section>
 
         <p className="text-center text-xs text-[var(--color-text-muted)] pb-4">
-          Walk Instead v0.1 · Walk first. Decide afterward.
+          Walk Instead v0.2 design draft · Walk first. Decide afterward.
         </p>
       </Screen>
 
@@ -180,7 +180,7 @@ function SettingsContent() {
               onClick={() => {
                 deleteAllData();
                 setConfirmDelete(false);
-                router.replace("/onboarding");
+                router.replace("/");
               }}
             >
               Delete everything
