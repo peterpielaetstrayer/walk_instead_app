@@ -154,3 +154,17 @@ After creating this blueprint, the draft PR received bounded implementation chan
 - **CI blocker identified:** several interim runs failed TypeScript due to missing explicit `children` in the new React dialog-focus test's `createElement` props. Fixed in commit `8c9b914`; latest all-stage tests are **not yet verified** as passing. Do not interpret earlier Vercel READY previews as CI success.
 
 **No production merge, manual deployment, paid service, account system, external recruitment or public release approval.** The draft branch remains the sole location of this v1 planning and implementation work.
+
+## 10. Security and browser automation remediation — November 4
+
+**Verified source:** [one-time security refresh run #41869257234](https://github.com/peterpielaetstrayer/walk_instead_app/actions/runs/41869257234); dependency update draft commit `7353252`.
+
+The release gate found **six production advisories in the earlier lockfile (one moderate, four high and one critical)**, including Next.js and several transitive packages. The draft upgraded `next` and `eslint-config-next` from `16.2.10` to **`16.4.5`**, pinned `@playwright/test` **`1.64.1`**, and refreshed the lockfile with nonbreaking advisory patches. The restricted dependency-refresh job passed `npm audit --omit=dev --audit-level=high`, lint, typecheck, unit tests and build **before the lockfile was written to the draft branch**.
+
+This means no *currently reported high/critical production-dependency advisories under that audit*, not a guarantee of complete security or that all development-dependency advisories are cleared. Review remaining moderate/development issues and monitor upstream advisories before launch. Version and report evidence need rechecking on the exact final release commit.
+
+**Browser testing blocker corrected in CI setup:** installing Playwright as a late, untracked npm mutation had failed in CI (npm Arborist `edgesOut` error). Playwright is now a pinned development dependency installed through `npm ci`. Full browser and real-PWA offline tests are still not verified on the latest draft head. The bot-generated PR workflow run returned `action_required` with no jobs; a normal branch update will retrigger verification.
+
+**Production risk remains separate:** The existing public `master` deployment was still the older dependency set at the time of this review. Do not claim the production app has been patched. A narrowly scoped production-security hotfix could be considered **only after its own acceptance test and Peter's approval**; do not merge the v1 redesign solely to address the framework patch.
+
+**Current release gates still open:** full Playwright (including offline worker), manual iOS/Android and screen-reader review, accurate install/update behavior, privacy/help publication readiness, approved beta and owner-approved release.
