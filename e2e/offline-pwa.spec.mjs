@@ -21,7 +21,7 @@ test("previously visited core flow remains usable after losing connectivity", as
 
   await page.getByRole("button", { name: "Begin a walk now" }).click();
   await expect(page).toHaveURL(/\/walk$/);
-  await expect(page.getByText("The pause has begun.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "The pause has begun." })).toBeVisible();
 
   // Client-side navigation may not issue a document fetch; wait for the
   // frontend-nav worker to finish storing the walk route before going offline.
@@ -33,7 +33,7 @@ test("previously visited core flow remains usable after losing connectivity", as
 
   await context.setOffline(true);
   await page.reload({ waitUntil: "domcontentloaded" });
-  await expect(page.getByText("The pause has begun.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "The pause has begun." })).toBeVisible();
   await expect(page.getByRole("button", { name: "Save a thought" })).toBeVisible();
 
   await page.getByRole("button", { name: "Save a thought" }).click();
