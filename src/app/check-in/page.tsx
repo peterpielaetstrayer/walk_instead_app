@@ -4,11 +4,8 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { HydrationGate } from "@/components/HydrationGate";
 import { ScreenHeader } from "@/components/ScreenHeader";
-import { PrimaryButton, SecondaryButton, TextLink } from "@/components/Buttons";
-import {
-  OutcomeSelector,
-  UsefulPauseSelector,
-} from "@/components/Selectors";
+import { PrimaryButton, TextLink } from "@/components/Buttons";
+import { OutcomeSelector, UsefulPauseSelector } from "@/components/Selectors";
 import { Screen } from "@/components/ui";
 import { useWalkStore } from "@/lib/walk-store";
 import type { StateAfter, UsefulPause } from "@/lib/types";
@@ -16,13 +13,7 @@ import type { StateAfter, UsefulPause } from "@/lib/types";
 export default function CheckInPage() {
   return (
     <HydrationGate>
-      <Suspense
-        fallback={
-          <div className="flex flex-1 items-center justify-center">
-            <p className="text-sm text-[var(--color-text-muted)]">Loading…</p>
-          </div>
-        }
-      >
+      <Suspense fallback={<p className="p-6 text-sm">Loading…</p>}>
         <CheckInContent />
       </Suspense>
     </HydrationGate>
@@ -32,8 +23,7 @@ export default function CheckInPage() {
 function CheckInContent() {
   const router = useRouter();
   const params = useSearchParams();
-  const { getWalk, completeWalkCheckIn, activeWalk } = useWalkStore();
-
+  const { getWalk, activeWalk, completeWalkCheckIn, endActiveWalkForCheckIn } = useWalkStore();
   const id = params.get("id") ?? activeWalk?.id;
   const walk = id ? getWalk(id) : undefined;
 
@@ -47,83 +37,58 @@ function CheckInContent() {
   if (!id || !walk) {
     return (
       <Screen className="justify-center">
-        <p className="text-[var(--color-text-secondary)]">
-          This walk could not be found.
-        </p>
-        <PrimaryButton className="mt-6" onClick={() => router.push("/")}>
-          Back home
+        <h1 className="editorial-heading text-3xl">This walk could not be found.</h1>
+        <PrimaryButton className="mt-6" onClick={() => router.replace("/")}>
+          Return home
         </PrimaryButton>
       </Screen>
     );
   }
 
-  const finish = (goReflect: boolean) => {
-    if (!stateAfter) return;
-    completeWalkCheckIn(walk.id, {
-      stateAfter,
-      usefulPause,
-      note: walk.note,
-    });
-    if (goReflect) {
-      router.push(`/reflection?id=${walk.id}`);
-    } else {
-      router.push("/");
-    }
+  const next = () => {
+    // Either feeling rating is optional; no false "positive" default.
+    completeWalkCheckIn(walk.id, { stateAfter, usefulPause, note: walk.note });
+    router.push(`/choice?id=${encodeURIComponent(walk.id)}`);
   };
 
-  const showSecondStep = Boolean(stateAfter);
+  const skip = () => {
+    // A walk can be completed without an emotional rating or reflection.
+    endActiveWalkForCheckIn(walk.id);
+    router.push(`/choice?id=${encodeURIComponent(walk.id)}`);
+  };
 
   return (
     <>
-      <ScreenHeader backHref="/" trailing={<span className="w-11" />} />
-      <Screen>
-        <h1 className="text-[1.9rem] font-bold tracking-tight">
-          How are you now?
+      <ScreenHeader backHref="/" trailing={<span className="w-11" aria-hidden />} />
+      <Screen className="pt-10">
+        <p className="text-[11px] font-semibold tracking-[0.17em] text-[var(--color-text-muted)]">
+          RETURN & NOTICE
+        </p>
+        <h1 className="editorial-heading mt-8 text-[clamp(2.45rem,9vw,3.2rem)] leading-[1.14]">
+          Notice what changed.
         </h1>
-        {!showSecondStep ? (
-          <>
-            <p className="mt-3 text-[15px] text-[var(--color-text-secondary)]">
-              Choose the option that fits best right now.
-            </p>
-            <div className="mt-6">
-              <OutcomeSelector value={stateAfter} onChange={setStateAfter} />
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="mt-4">
-              <OutcomeSelector value={stateAfter} onChange={setStateAfter} />
-            </div>
+        <p className="mt-5 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">
+          There&apos;s no right answer.
+        </p>
+        <div className="mt-10">
+          <OutcomeSelector value={stateAfter} onChange={setStateAfter} />
+        </div>
 
-            <h2 className="mt-8 text-lg font-semibold">
-              Did the walk create a useful pause?
-            </h2>
-            <div className="mt-3">
-              <UsefulPauseSelector
-                value={usefulPause}
-                onChange={setUsefulPause}
-              />
-            </div>
-            <div className="mt-2">
-              <TextLink onClick={() => setUsefulPause(undefined)}>
-                Skip
-              </TextLink>
-            </div>
+        <details className="mt-8 text-sm text-[var(--color-text-secondary)]">
+          <summary className="min-h-11 cursor-pointer py-3 font-medium">
+            Was this a useful pause? (optional)
+          </summary>
+          <div className="mt-3">
+            <UsefulPauseSelector value={usefulPause} onChange={setUsefulPause} />
+          </div>
+        </details>
 
-            <div className="mt-10 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-              <p className="text-lg font-semibold">
-                You walked before deciding.
-              </p>
-            </div>
-
-            <div className="mt-6 flex flex-col gap-2">
-              <PrimaryButton onClick={() => finish(false)}>Finish</PrimaryButton>
-              <SecondaryButton onClick={() => finish(true)}>
-                Add a note
-              </SecondaryButton>
-            </div>
-          </>
-        )}
+        <div className="mt-auto pt-12 pb-4">
+          <PrimaryButton className="min-h-14" onClick={next}>Continue</PrimaryButton>
+          <div className="mt-3 flex justify-center">
+            <TextLink onClick={skip}>Skip check-in</TextLink>
+          </div>
+        </div>
       </Screen>
     </>
   );
