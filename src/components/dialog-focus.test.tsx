@@ -39,6 +39,35 @@ describe("walk note sheet focus lifecycle", () => {
     expect(document.activeElement).toBe(input);
   });
 
+  it("wraps Tab and Shift+Tab inside a note dialog", async () => {
+    await act(async () =>
+      root.render(
+        <BottomSheet open title="Keep the thought" onClose={() => {}}>
+          <textarea aria-label="Thought" />
+          <button type="button">Save note</button>
+        </BottomSheet>,
+      ),
+    );
+
+    const close = document.querySelector<HTMLButtonElement>('button[aria-label="Close dialog"]');
+    const save = Array.from(document.querySelectorAll("button")).find((button) => button.textContent === "Save note");
+    expect(close).toBeTruthy();
+    expect(save).toBeTruthy();
+
+    save?.focus();
+    expect(document.activeElement).toBe(save);
+    await act(async () => {
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true }));
+    });
+    expect(document.activeElement).toBe(close);
+
+    close?.focus();
+    await act(async () => {
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true, bubbles: true, cancelable: true }));
+    });
+    expect(document.activeElement).toBe(save);
+  });
+
   it("Escape uses the newest close callback without resetting the focus effect", async () => {
     const first = vi.fn();
     const latest = vi.fn();
