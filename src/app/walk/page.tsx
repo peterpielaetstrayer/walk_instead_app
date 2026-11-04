@@ -197,7 +197,7 @@ function WalkContent() {
           value={draftThought}
           onChange={(e) => setDraftThought(e.target.value)}
           placeholder="A thought, a feeling, or an idea…"
-          className="mt-2 w-full min-h-32 resize-y rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-base"
+          className="mt-2 w-full min-h-32 resize-y rounded-[var(--radius-md)] border border-[var(--color-control-border)] bg-[var(--color-surface)] px-4 py-3 text-base"
         />
         <p className="mt-2 mb-5 text-xs text-[var(--color-text-muted)]">
           Stored on this device. No recording or sharing.
