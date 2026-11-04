@@ -1,25 +1,8 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useClock } from "@/lib/useClock";
 import { formatTimerDisplay } from "@/lib/format";
 import { getDisplaySeconds, getTimerProgress } from "@/lib/walk-logic";
-
-function subscribeTick(cb: () => void) {
-  const id = window.setInterval(cb, 1000);
-  const onVisible = () => {
-    if (document.visibilityState === "visible") cb();
-  };
-  document.addEventListener("visibilitychange", onVisible);
-  window.addEventListener("focus", cb);
-  return () => {
-    window.clearInterval(id);
-    document.removeEventListener("visibilitychange", onVisible);
-    window.removeEventListener("focus", cb);
-  };
-}
-
-const getNow = () => Date.now();
-const getServerNow = () => 0;
 
 export function ProgressTimer({
   startedAt,
@@ -28,7 +11,7 @@ export function ProgressTimer({
   startedAt: string;
   targetDurationSeconds: number;
 }) {
-  const now = useSyncExternalStore(subscribeTick, getNow, getServerNow);
+  const now = useClock();
   const display = getDisplaySeconds(startedAt, targetDurationSeconds, now);
   const progress = getTimerProgress(startedAt, targetDurationSeconds, now);
   const seconds = formatTimerDisplay(display.seconds);
