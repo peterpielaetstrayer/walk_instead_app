@@ -131,6 +131,7 @@ export interface HistorySummary {
   betterCount: number;
   completedWithState: number;
   usefulPauseCount: number;
+  completedWithPauseRating: number;
   totalWalkingSeconds: number;
   hasEnoughForFeelingSummary: boolean;
   hasEnoughForPauseSummary: boolean;
@@ -147,6 +148,7 @@ export function calculateHistorySummary(walks: WalkEvent[]): HistorySummary {
   let betterCount = 0;
   let completedWithState = 0;
   let usefulPauseCount = 0;
+  let completedWithPauseRating = 0;
   let totalWalkingSeconds = 0;
 
   for (const walk of completed) {
@@ -155,8 +157,11 @@ export function calculateHistorySummary(walks: WalkEvent[]): HistorySummary {
       completedWithState += 1;
       if (walk.stateAfter === "better") betterCount += 1;
     }
-    if (walk.usefulPause === "yes" || walk.usefulPause === "somewhat") {
-      usefulPauseCount += 1;
+    if (walk.usefulPause) {
+      completedWithPauseRating += 1;
+      if (walk.usefulPause === "yes" || walk.usefulPause === "somewhat") {
+        usefulPauseCount += 1;
+      }
     }
   }
 
@@ -165,10 +170,11 @@ export function calculateHistorySummary(walks: WalkEvent[]): HistorySummary {
     betterCount,
     completedWithState,
     usefulPauseCount,
+    completedWithPauseRating,
     totalWalkingSeconds,
     // Avoid misleading fractions after a single event
     hasEnoughForFeelingSummary: completedWithState >= 2,
-    hasEnoughForPauseSummary: momentsInterrupted >= 2,
+    hasEnoughForPauseSummary: completedWithPauseRating >= 2,
   };
 }
 
