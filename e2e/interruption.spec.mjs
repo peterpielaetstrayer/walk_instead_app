@@ -67,8 +67,10 @@ test("a calm-time duration choice applies to the next walk and survives refresh"
   await page.goto("/");
   await expect(page.getByText("5 minutes · No route required")).toBeVisible();
   await page.getByRole("button", { name: "Begin a walk now" }).click();
+  // Next.js route navigation is asynchronous; don't reload home by racing push().
+  await expect(page).toHaveURL(/\\/walk$/);
   await page.reload();
-  await expect(page.getByText("The pause has begun.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "The pause has begun." })).toBeVisible();
 
   const stored = await page.evaluate(() => {
     const raw = localStorage.getItem("walk-instead:v1");
