@@ -37,7 +37,7 @@ export function SecondaryButton({
   return (
     <button
       type="button"
-      className={`${base} bg-transparent text-[var(--color-text)] border border-[var(--color-border)] hover:bg-white ${fullWidth ? "w-full" : ""} ${className}`}
+      className={`${base} bg-transparent text-[var(--color-text)] border border-[var(--color-control-border)] hover:bg-white ${fullWidth ? "w-full" : ""} ${className}`}
       {...props}
     >
       {children}
