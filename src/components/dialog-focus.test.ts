@@ -25,8 +25,7 @@ describe("walk note sheet focus lifecycle", () => {
     const renderSheet = (onClose: () => void, value: string) =>
       createElement(
         BottomSheet,
-        { open: true, title: "Keep the thought", onClose },
-        createElement("textarea", { "aria-label": "Thought", defaultValue: value }),
+        { open: true, title: "Keep the thought", onClose, children: createElement("textarea", { "aria-label": "Thought", defaultValue: value }) },
       );
 
     await act(async () => root.render(renderSheet(() => {}, "")));
@@ -46,8 +45,7 @@ describe("walk note sheet focus lifecycle", () => {
     const sheet = (onClose: () => void) =>
       createElement(
         BottomSheet,
-        { open: true, title: "Keep the thought", onClose },
-        createElement("textarea", { "aria-label": "Thought" }),
+        { open: true, title: "Keep the thought", onClose, children: createElement("textarea", { "aria-label": "Thought" }) },
       );
 
     await act(async () => root.render(sheet(first)));
