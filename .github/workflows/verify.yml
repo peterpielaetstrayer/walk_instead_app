@@ -8,6 +8,11 @@ on:
 permissions:
   contents: read
 
+# Repeated draft commits supersede previous validation requests.
+concurrency:
+  group: walk-instead-draft-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     name: Static checks and browser flows
