@@ -97,7 +97,10 @@ function parseSettings(value: unknown): UserSettings {
     implementationIntention: parseIntention(value.implementationIntention),
     defaultDurationSeconds:
       typeof value.defaultDurationSeconds === "number" &&
-      value.defaultDurationSeconds > 0
+      Number.isFinite(value.defaultDurationSeconds) &&
+      Number.isInteger(value.defaultDurationSeconds) &&
+      value.defaultDurationSeconds >= 60 &&
+      value.defaultDurationSeconds <= 3600
         ? value.defaultDurationSeconds
         : DEFAULT_SETTINGS.defaultDurationSeconds,
     reducedMotion:
