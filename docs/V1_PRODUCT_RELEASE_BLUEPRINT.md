@@ -44,7 +44,7 @@ The app does **not** guarantee a physiological effect, treat substance-use disor
 | P0-07 | Privacy and control | No signup or tracking; clear local storage disclosure; export and delete all data, plus delete one walk | Existing functionality; audit controls |
 | P0-08 | Offline and update recovery | Central flow works after install, including reload and version updates without broken cached routes | Requires device/PWA verification |
 | P0-09 | Accessible and safer alternatives | Keyboard, focus-trap dialogs, contrast, text scaling and reduced motion work; movement alternatives for inability/unsafe walking addressed | **Open design + QA gate** |
-| P1-01 | Adjustable default duration | Choose from a small set at calm-time settings, default 10 min; existing active walk remains unchanged | Planned bounded improvement |
+| P1-01 | Adjustable default duration | Choose from a small set at calm-time settings, default 10 min; existing active walk remains unchanged | **Implemented on draft branch; verification pending** |
 | P1-02 | Finished visual system | Deliberate typography, hierarchy, responsive spacing, icons, loading/error/empty states, quality copy | Quiet Editorial direction implemented; polish pending |
 | P1-03 | Useful installation and support | Honest install guidance per browser, accessible support/contact and privacy information, clear nonclinical scope | Partial; release copy pending |
 
@@ -117,8 +117,8 @@ Evaluate Google Play's current testing policy, Apple’s minimum-functionality a
 | High | Dialog accessibility/focus trap not complete | Dialog restores focus, Escape; no explicit Tab trap/inert background confirmed | Implement and verify keyboard focus containment, close button and return |
 | High | Walk alternatives and safe movement guidance | Walk is flagship; no robust non-walking fallback in current product | Prototype accessible alternative and evaluate with users before implementing |
 | High | Sensitive note storage on shared devices / browser deletion | localStorage and clear/export present; privacy implications remain | Plain-language privacy notice, device/shared-use limitations and data retention review |
-| Medium | Duration setting not exposed | `defaultDurationSeconds` in data model, but no v0.2 setting control | Add 5/10/15/20 calm-time settings with validation |
-| Medium | History summary can be misleading when check-in skipped | `usefulPauseCount` compared against all completed walks even if unrated | Use rated denominator and avoid causal “created” language |
+| Medium | Duration setting verification | Draft now offers 5/10/15/20 minute settings and data validation | Confirm preference survives refresh and does not alter an active walk; browser QA pending |
+| Medium | History summary needs regression confirmation | Draft now counts only check-in respondents in the denominator and uses observational language | Validate negative/skip cases and require green tests |
 | Medium | Old onboarding/manual copy not aligned | Legacy `/onboarding` and some README/settings copy refer to mandatory flow | Audit copy and revise after navigation/data compatibility testing |
 | Medium | Visual polish not yet measured | Figma direction A selected provisionally; no completed contrast/zoom testing | Screen-by-screen design review and full interaction states |
 | Medium | Support and transparent app info | Prototype contains Safety section but not release-grade help/privacy page | Draft truthful notices; confirm operator contact method without inventing address |
@@ -136,7 +136,21 @@ Evaluate Google Play's current testing policy, Apple’s minimum-functionality a
 ## 8. Next bounded execution package
 
 1. **Primary:** Clear browser CI on draft PR #1, then run documented real-device navigation checks. The newly introduced browser test should be treated as a test target, not as evidence of success before CI completes.
-2. **Secondary:** Implement calm-time duration choice and ensure short/long sessions survive existing timestamp and history logic. No change to first-screen action hierarchy.
+2. **Secondary:** Review and verify the newly implemented calm-time duration presets and observation-based history text; then prioritize focus/accessibility and offline integrity before new features.
 3. **Administrative:** Keep this blueprint and a concise Peter OS status link in a draft PR. Do not activate an expansive parallel product workload during existing graduate-school and HRWC commitments.
 
 **Definition of v1.0 done:** all release-critical functions pass the supported device/browser matrix; the app can be installed and updated without losing user data; core paths function offline; privacy, safety and accessibility are truthfully documented; there are no known high-severity unresolved failures; beta evidence is reviewed; **and Peter explicitly approves production release**. An attractive Figma design, green build or Vercel READY deployment alone never satisfies this definition.
+
+## 9. Execution record — November 4 follow-through
+
+After creating this blueprint, the draft PR received bounded implementation changes:
+
+- Added **5 / 10 / 15 / 20 minute default walk options** in Settings, preserving the currently active walk's target duration and keeping the urgent-start screen free of a time picker.
+- Added conservative validation for finite, integer stored default durations and regression tests for a changed preference with an existing walk.
+- Updated the home screen's duration annotation to reflect the actual active walk or saved preference.
+- Corrected **history summaries** so unrated pauses do not count as a usefulness verdict; changed summary language to reported observations rather than a causal claim.
+- Expanded Playwright coverage for settings → begin walk → persistence, in addition to the existing save-thought, early-finish, skip-check-in and resume scenarios.
+- Updated README navigation, documentation and legacy-onboarding labels to reflect current code.
+- **CI blocker identified:** several interim runs failed TypeScript due to missing explicit `children` in the new React dialog-focus test's `createElement` props. Fixed in commit `8c9b914`; latest all-stage tests are **not yet verified** as passing. Do not interpret earlier Vercel READY previews as CI success.
+
+**No production merge, manual deployment, paid service, account system, external recruitment or public release approval.** The draft branch remains the sole location of this v1 planning and implementation work.
