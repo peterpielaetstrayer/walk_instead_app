@@ -32,7 +32,7 @@ export function OutcomeSelector({
               selected ? "border-[var(--color-primary)] bg-[var(--color-primary-subtle)] ring-1 ring-[var(--color-primary)]" : "border-[var(--color-border)] bg-[var(--color-surface)]"
             }`}
           >
-            {selected ? "◉  " : "○  "}{STATE_AFTER_LABELS[opt]}
+            <span aria-hidden="true">{selected ? "◉" : "○"}&nbsp;&nbsp;</span>{STATE_AFTER_LABELS[opt]}
           </button>
         );
       })}
