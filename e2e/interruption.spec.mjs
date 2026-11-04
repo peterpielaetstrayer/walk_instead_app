@@ -62,7 +62,8 @@ test("a calm-time duration choice applies to the next walk and survives refresh"
   page.on("pageerror", (error) => pageErrors.push(error.message));
 
   await page.goto("/settings");
-  await page.getByRole("radio", { name: "5 min" }).check();
+  await page.getByText("5 min", { exact: true }).click();
+  await expect(page.getByRole("radio", { name: "5 min" })).toBeChecked();
   await page.goto("/");
   await expect(page.getByText("5 minutes · No route required")).toBeVisible();
   await page.getByRole("button", { name: "Begin a walk now" }).click();
