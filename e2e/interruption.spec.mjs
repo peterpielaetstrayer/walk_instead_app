@@ -56,3 +56,28 @@ test("refreshing during an active walk resumes the existing timer", async ({ pag
   await expect(page.getByRole("button", { name: "Return to your walk" })).toBeVisible();
   expect(pageErrors).toEqual([]);
 });
+
+test("a calm-time duration choice applies to the next walk and survives refresh", async ({ page }) => {
+  const pageErrors = [];
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+
+  await page.goto("/settings");
+  await page.getByRole("radio", { name: "5 min" }).check();
+  await page.goto("/");
+  await expect(page.getByText("5 minutes · No route required")).toBeVisible();
+  await page.getByRole("button", { name: "Begin a walk now" }).click();
+  await page.reload();
+  await expect(page.getByText("The pause has begun.")).toBeVisible();
+
+  const stored = await page.evaluate(() => {
+    const raw = localStorage.getItem("walk-instead:v1");
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    return {
+      defaultDurationSeconds: data.settings.defaultDurationSeconds,
+      activeTargetSeconds: data.walks.find((w) => w.status === "active")?.targetDurationSeconds,
+    };
+  });
+  expect(stored).toEqual({ defaultDurationSeconds: 300, activeTargetSeconds: 300 });
+  expect(pageErrors).toEqual([]);
+});
