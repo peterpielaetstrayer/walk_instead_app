@@ -26,8 +26,16 @@ function subscribeClock(cb: () => void) {
   };
 }
 
+function getClockSnapshot() {
+  return Date.now();
+}
+
+function getClockServerSnapshot() {
+  return 0;
+}
+
 function useClock() {
-  return useSyncExternalStore(subscribeClock, () => Date.now(), () => 0);
+  return useSyncExternalStore(subscribeClock, getClockSnapshot, getClockServerSnapshot);
 }
 
 export default function WalkPage() {
