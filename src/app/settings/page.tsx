@@ -72,7 +72,7 @@ function SettingsContent() {
                     checked={data.settings.defaultDurationSeconds === seconds}
                     onChange={() => updateSettings({ defaultDurationSeconds: seconds })}
                   />
-                  <span className="flex min-h-12 items-center justify-center rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm font-medium peer-checked:border-[var(--color-primary)] peer-checked:bg-[var(--color-primary-subtle)] peer-checked:text-[var(--color-primary)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--color-primary)]">
+                  <span className="flex min-h-12 items-center justify-center rounded-[var(--radius-md)] border border-[var(--color-control-border)] bg-[var(--color-surface)] text-sm font-medium peer-checked:border-[var(--color-primary)] peer-checked:bg-[var(--color-primary-subtle)] peer-checked:text-[var(--color-primary)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--color-primary)]">
                     {seconds / 60} min
                   </span>
                 </label>
@@ -182,7 +182,7 @@ function SettingsContent() {
                 className={`min-h-11 w-full rounded-[var(--radius-md)] border px-3 py-2 text-left text-sm capitalize ${
                   selected
                     ? "border-[var(--color-primary)] bg-[var(--color-primary-subtle)]"
-                    : "border-[var(--color-border)]"
+                    : "border-[var(--color-control-border)]"
                 }`}
               >
                 {option}
@@ -195,7 +195,7 @@ function SettingsContent() {
             type="text"
             value={customText}
             onChange={(e) => setCustomText(e.target.value)}
-            className="mt-3 w-full min-h-11 rounded-[var(--radius-md)] border border-[var(--color-border)] px-3 text-sm"
+            className="mt-3 w-full min-h-11 rounded-[var(--radius-md)] border border-[var(--color-control-border)] px-3 text-sm"
             placeholder="Your words"
             maxLength={80}
             aria-label="Custom intention"
