@@ -7,7 +7,7 @@ import { ScreenHeader } from "@/components/ScreenHeader";
 import { PrimaryButton, SecondaryButton } from "@/components/Buttons";
 import { ConfirmationDialog } from "@/components/Dialog";
 import { Card, Screen } from "@/components/ui";
-import { INTENTION_PRESETS, type IntentionPreset } from "@/lib/types";
+import { DURATION_PRESETS_SECONDS, INTENTION_PRESETS, type IntentionPreset } from "@/lib/types";
 import { buildIntentionStatement } from "@/lib/walk-logic";
 import { useWalkStore } from "@/lib/walk-store";
 
@@ -54,6 +54,39 @@ function SettingsContent() {
     <>
       <ScreenHeader title="Settings" backHref="/" />
       <Screen className="gap-8">
+        <section>
+          <fieldset>
+            <legend className="text-lg font-semibold">Default walk length</legend>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+              Choose this while you're calm. A walk already in progress keeps
+              its original time; you can still finish early or keep going.
+            </p>
+            <div className="mt-4 grid grid-cols-4 gap-2">
+              {DURATION_PRESETS_SECONDS.map((seconds) => (
+                <label key={seconds} className="cursor-pointer">
+                  <input
+                    className="peer sr-only"
+                    type="radio"
+                    name="default-walk-duration"
+                    value={seconds}
+                    checked={data.settings.defaultDurationSeconds === seconds}
+                    onChange={() => updateSettings({ defaultDurationSeconds: seconds })}
+                  />
+                  <span className="flex min-h-12 items-center justify-center rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm font-medium peer-checked:border-[var(--color-primary)] peer-checked:bg-[var(--color-primary-subtle)] peer-checked:text-[var(--color-primary)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--color-primary)]">
+                    {seconds / 60} min
+                  </span>
+                </label>
+              ))}
+            </div>
+            {!DURATION_PRESETS_SECONDS.includes(data.settings.defaultDurationSeconds) && (
+              <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
+                Current custom default: {Math.round(data.settings.defaultDurationSeconds / 60)} minutes.
+                Choose a standard option above to change it.
+              </p>
+            )}
+          </fieldset>
+        </section>
+
         <section>
           <h2 className="text-lg font-semibold">My intention</h2>
           <Card className="mt-3">
@@ -192,7 +225,7 @@ function SettingsContent() {
         }
       >
         This clears walks, notes, and settings on this device and returns you
-        to first-use onboarding. It cannot be undone.
+        to the home screen. It cannot be undone.
       </ConfirmationDialog>
     </>
   );
