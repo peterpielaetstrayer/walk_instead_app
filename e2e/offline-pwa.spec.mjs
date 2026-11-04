@@ -23,6 +23,14 @@ test("previously visited core flow remains usable after losing connectivity", as
   await expect(page).toHaveURL(/\/walk$/);
   await expect(page.getByText("The pause has begun.")).toBeVisible();
 
+  // Client-side navigation may not issue a document fetch; wait for the
+  // frontend-nav worker to finish storing the walk route before going offline.
+  await page.waitForFunction(
+    async () => Boolean(await caches.match(new URL("/walk", location.href))),
+    null,
+    { timeout: 20000 },
+  );
+
   await context.setOffline(true);
   await page.reload({ waitUntil: "domcontentloaded" });
   await expect(page.getByText("The pause has begun.")).toBeVisible();
