@@ -61,6 +61,8 @@ export interface AppData {
 export const STORAGE_KEY = "walk-instead:v1";
 export const DATA_VERSION = 1;
 export const DEFAULT_DURATION_SECONDS = 10 * 60;
+/** Calm-time duration choices only; the urgent-start screen never asks. */
+export const DURATION_PRESETS_SECONDS: readonly number[] = [5 * 60, 10 * 60, 15 * 60, 20 * 60];
 /** Active walks older than this become "stale" and show recovery UI */
 export const STALE_WALK_THRESHOLD_MS = 6 * 60 * 60 * 1000;
 
