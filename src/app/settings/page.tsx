@@ -58,7 +58,7 @@ function SettingsContent() {
           <fieldset>
             <legend className="text-lg font-semibold">Default walk length</legend>
             <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-secondary)]">
-              Choose this while you're calm. A walk already in progress keeps
+              Choose this while you&apos;re calm. A walk already in progress keeps
               its original time; you can still finish early or keep going.
             </p>
             <div className="mt-4 grid grid-cols-4 gap-2">
