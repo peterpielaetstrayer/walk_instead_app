@@ -48,7 +48,7 @@ interface WalkStoreValue extends StoreSnapshot {
   completeWalkCheckIn: (
     id: string,
     payload: {
-      stateAfter: StateAfter;
+      stateAfter?: StateAfter;
       usefulPause?: UsefulPause;
       note?: string;
     },
@@ -190,7 +190,7 @@ export function WalkStoreProvider({ children }: { children: ReactNode }) {
     (
       id: string,
       payload: {
-        stateAfter: StateAfter;
+        stateAfter?: StateAfter;
         usefulPause?: UsefulPause;
         note?: string;
       },
