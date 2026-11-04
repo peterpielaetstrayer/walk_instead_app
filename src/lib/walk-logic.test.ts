@@ -165,6 +165,7 @@ describe("history summaries", () => {
     expect(summary.betterCount).toBe(1);
     expect(summary.completedWithState).toBe(2);
     expect(summary.usefulPauseCount).toBe(2);
+    expect(summary.completedWithPauseRating).toBe(2);
     expect(summary.totalWalkingSeconds).toBe(1500);
     expect(summary.hasEnoughForFeelingSummary).toBe(true);
   });
@@ -191,6 +192,29 @@ describe("history summaries", () => {
     expect(summary.momentsInterrupted).toBe(1);
     expect(summary.completedWithState).toBe(0);
     expect(summary.hasEnoughForFeelingSummary).toBe(false);
+  });
+
+  it("does not infer usefulness when users skip the optional pause rating", () => {
+    const walks: WalkEvent[] = [
+      walk({ id: "a", startedAt: "2026-01-01T10:00:00.000Z" }),
+      walk({ id: "b", startedAt: "2026-01-02T10:00:00.000Z", usefulPause: "yes" }),
+      walk({ id: "c", startedAt: "2026-01-03T10:00:00.000Z" }),
+    ];
+    const summary = calculateHistorySummary(walks);
+    expect(summary.momentsInterrupted).toBe(3);
+    expect(summary.completedWithPauseRating).toBe(1);
+    expect(summary.usefulPauseCount).toBe(1);
+    expect(summary.hasEnoughForPauseSummary).toBe(false);
+  });
+
+  it("includes a negative rating in the response denominator", () => {
+    const summary = calculateHistorySummary([
+      walk({ id: "a", startedAt: "2026-01-01T10:00:00.000Z", usefulPause: "no" }),
+      walk({ id: "b", startedAt: "2026-01-02T10:00:00.000Z", usefulPause: "somewhat" }),
+    ]);
+    expect(summary.completedWithPauseRating).toBe(2);
+    expect(summary.usefulPauseCount).toBe(1);
+    expect(summary.hasEnoughForPauseSummary).toBe(true);
   });
 
   it("handles empty history carefully", () => {
