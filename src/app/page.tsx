@@ -18,7 +18,7 @@ export default function HomePage() {
 
 function HomeContent() {
   const router = useRouter();
-  const { activeWalk, startWalk, storageError } = useWalkStore();
+  const { activeWalk, startWalk, storageError, data } = useWalkStore();
 
   // No onboarding, context picker, account or route choice can block a first walk.
   const begin = () => {
@@ -51,7 +51,7 @@ function HomeContent() {
               {activeWalk ? "Return to my walk" : "Begin walking"}
             </PrimaryButton>
             <p className="mt-3 text-center text-[13px] text-[var(--color-text-muted)]">
-              10 minutes · No route required
+              {Math.round((activeWalk?.targetDurationSeconds ?? data.settings.defaultDurationSeconds) / 60)} minutes · No route required
             </p>
           </div>
 
