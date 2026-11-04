@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   validate:
-    name: Lint, typecheck, tests and build
+    name: Static checks and browser flows
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -24,3 +24,9 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+      - name: Install pinned browser test runner
+        run: npm install --no-save --package-lock=false @playwright/test@1.56.1
+      - name: Install Chromium for browser smoke tests
+        run: npx playwright install --with-deps chromium
+      - name: Browser flow smoke tests
+        run: npx playwright test --config playwright.config.mjs
