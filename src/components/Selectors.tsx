@@ -9,27 +9,6 @@ import {
   type WalkTrigger,
 } from "@/lib/types";
 
-const stateStyles: Record<
-  StateAfter,
-  { selected: string; idle: string }
-> = {
-  better: {
-    idle: "border-[var(--color-border)] bg-[var(--color-surface)]",
-    selected:
-      "border-[var(--color-positive)] bg-[var(--color-positive-bg)] ring-1 ring-[var(--color-positive)]",
-  },
-  same: {
-    idle: "border-[var(--color-border)] bg-[var(--color-surface)]",
-    selected:
-      "border-[var(--color-caution)] bg-[var(--color-caution-bg)] ring-1 ring-[var(--color-caution)]",
-  },
-  worse: {
-    idle: "border-[var(--color-border)] bg-[var(--color-surface)]",
-    selected:
-      "border-[var(--color-observation-worse)] bg-[var(--color-observation-worse-bg)] ring-1 ring-[var(--color-observation-worse)]",
-  },
-};
-
 export function OutcomeSelector({
   value,
   onChange,
@@ -50,10 +29,10 @@ export function OutcomeSelector({
             aria-checked={selected}
             onClick={() => onChange(opt)}
             className={`min-h-14 w-full rounded-[var(--radius-md)] border px-4 py-3 text-left text-base font-semibold transition-colors ${
-              selected ? stateStyles[opt].selected : stateStyles[opt].idle
+              selected ? "border-[var(--color-primary)] bg-[var(--color-primary-subtle)] ring-1 ring-[var(--color-primary)]" : "border-[var(--color-border)] bg-[var(--color-surface)]"
             }`}
           >
-            {STATE_AFTER_LABELS[opt]}
+            {selected ? "◉  " : "○  "}{STATE_AFTER_LABELS[opt]}
           </button>
         );
       })}
