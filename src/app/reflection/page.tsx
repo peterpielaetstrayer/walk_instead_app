@@ -79,18 +79,18 @@ function ReflectionContent() {
   const save = () => {
     updateWalk(walk.id, { note: note.trim() || undefined });
     clearDraft();
-    router.push("/history");
+    router.push(`/choice?id=${encodeURIComponent(walk.id)}`);
   };
 
   const skip = () => {
     clearDraft();
-    router.push("/");
+    router.push(`/choice?id=${encodeURIComponent(walk.id)}`);
   };
 
   return (
     <>
       <ScreenHeader
-        backHref={`/check-in?id=${walk.id}`}
+        backHref={`/choice?id=${encodeURIComponent(walk.id)}`}
         trailing={<span className="w-11" />}
       />
       <Screen>
