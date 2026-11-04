@@ -18,20 +18,27 @@ export function ConfirmationDialog({
 }) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef(onClose);
+
+  // Parents may pass a new callback every time the timer or text field updates.
+  // Keep the latest callback without resetting the focus effect on each render.
+  useEffect(() => {
+    closeRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!open) return;
     const previous = document.activeElement as HTMLElement | null;
     panelRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") closeRef.current();
     };
     document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("keydown", onKey);
       previous?.focus();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 
@@ -86,20 +93,27 @@ export function BottomSheet({
 }) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef(onClose);
+
+  // Parents may pass a new callback every time the timer or text field updates.
+  // Keep the latest callback without resetting the focus effect on each render.
+  useEffect(() => {
+    closeRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!open) return;
     const previous = document.activeElement as HTMLElement | null;
     panelRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") closeRef.current();
     };
     document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("keydown", onKey);
       previous?.focus();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 
