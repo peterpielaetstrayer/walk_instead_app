@@ -219,6 +219,41 @@ describe("history summaries", () => {
   });
 });
 
+describe("duration presets and safe persistence", () => {
+  it("preserves an existing walk duration independently of later setting changes", () => {
+    const first = createWalkEvent({
+      id: "dur-5",
+      startedAt: "2026-07-15T12:00:00.000Z",
+      targetDurationSeconds: 300,
+    });
+    const parsed = parseAppData({
+      ...DEFAULT_APP_DATA,
+      settings: { ...DEFAULT_APP_DATA.settings, defaultDurationSeconds: 1200 },
+      walks: [first],
+    });
+    expect(parsed.ok).toBe(true);
+    expect(parsed.data.settings.defaultDurationSeconds).toBe(1200);
+    expect(parsed.data.walks[0].targetDurationSeconds).toBe(300);
+    expect(getDisplaySeconds(first.startedAt, 300, Date.parse(first.startedAt) + 120_000))
+      .toEqual({ mode: "countdown", seconds: 180 });
+  });
+
+  it("rejects non-finite and impossible default durations while retaining other settings", () => {
+    for (const bad of [0, -1, 0.5, Infinity, 86400]) {
+      const parsed = parseAppData({
+        ...DEFAULT_APP_DATA,
+        settings: {
+          ...DEFAULT_APP_DATA.settings,
+          onboardingCompleted: true,
+          defaultDurationSeconds: bad,
+        },
+      });
+      expect(parsed.data.settings.defaultDurationSeconds).toBe(600);
+      expect(parsed.data.settings.onboardingCompleted).toBe(true);
+    }
+  });
+});
+
 describe("persistence serialization and parsing", () => {
   it("round-trips valid data", () => {
     const data = {
