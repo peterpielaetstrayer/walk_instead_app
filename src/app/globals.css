@@ -96,4 +96,5 @@ body {
   white-space: nowrap;
   border-width: 0;
 }
-\n.editorial-heading { font-family: var(--font-fraunces), Georgia, 'Times New Roman', serif; font-weight: 400; }\n
+
+.editorial-heading { font-family: var(--font-fraunces), Georgia, 'Times New Roman', serif; font-weight: 400; }
